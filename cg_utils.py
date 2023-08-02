@@ -5,7 +5,7 @@
 import numpy as np
 from utils import get_cb
 
-def tx(x,gev):
+def Tdot(gev,x):
     n=len(x)
     y = np.zeros(2*n)
     y[0:n]=x
@@ -13,15 +13,15 @@ def tx(x,gev):
     y=y[0:n]
     
     return y.real
-def cinvx(d,ev):
-    y=np.fft.irfft(np.fft.rfft(d)/ev,n=len(d))
+def circ_solve(C,y):
+    y=np.fft.irfft(np.fft.rfft(y)/C,n=len(y))
     return y.real
     
 def get_precond_ev_gev(t,method):
     n=len(t)
-    t1 =np.conj(t[1::][::-1])
-    tmp=np.concatenate([t,np.array([0]),t1])
-    gev = np.fft.rfft(tmp)
+    t1  = np.conj(t[1::][::-1])
+    tmp =np.concatenate([t,np.array([0]),t1])
+    gev  = np.fft.rfft(tmp)
     
     description=""
     
@@ -83,15 +83,15 @@ def get_precond_ev_gev(t,method):
 
     
     
-def pcg2(gev,ev,b,ig,tol,it_max,disp=False,atol=False):
+def pcg(gev,ev,b,ig,tol,it_max,disp=False,atol=False):
 
     x=ig
-    r=b-tx(x,gev)
+    r=b-Tdot(gev,x)
     
     err0 = np.linalg.norm(r)
     err=err0
     
-    z=cinvx(r,ev)
+    z=circ_solve(ev,r)
     p=z
     k=0
     
@@ -101,7 +101,7 @@ def pcg2(gev,ev,b,ig,tol,it_max,disp=False,atol=False):
         print("\n at step {0:}, residual={1:}".format(k,err))
         
     while True:
-        Ap = tx(p,gev)
+        Ap = Tdot(gev,p)
         fac = np.dot(r,z)
         alpha = fac/np.dot(p,Ap)
         x=x+alpha*p
@@ -111,7 +111,7 @@ def pcg2(gev,ev,b,ig,tol,it_max,disp=False,atol=False):
         if err/err0 < tol or k >= it_max:
             break
         
-        z=cinvx(r,ev)
+        z=circ_solve(ev,r)
         beta = np.dot(r,z)/fac
         p=z+beta*p
         k+=1
@@ -129,7 +129,7 @@ def toeplitz_solve_cg(c,b,xinit=None,precond=0,tol=1e-4,it_max=1000,disp=False,a
     if xinit is None:
         xinit = b*0.0
     ev,gev,precond_descrition = get_precond_ev_gev(c,precond)
-    x,info=pcg2(gev,ev,b,xinit,tol,it_max,disp=disp,atol=atol)
+    x,info=pcg(gev,ev,b,xinit,tol,it_max,disp=disp,atol=atol)
     info["Preconditioner"]=precond_descrition
     return x,info
     
@@ -137,4 +137,12 @@ def least_squares_fir_cg(x,y,impulse_length,reg=0.0,xinit=None,precond=0,tol=1e-
     c,b = get_cb(x,y,impulse_length,reg)
     return toeplitz_solve_cg(c,b,xinit=xinit,precond=precond,tol=tol,it_max=it_max,disp=disp,atol=atol)
     
+if __name__=="__main__":
+    n=100000
+    x=np.random.randn(n)
+    y=np.random.randn(n)
+    m=1000
+    
+    f,info=least_squares_fir_cg(x,y,m,tol=1e-9,atol=True)
+    print(info)
     
