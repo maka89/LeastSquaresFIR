@@ -1,4 +1,5 @@
-## From "An Introduction to Iterative Toeplitz Solvers"
+## Preconditioners and some of the other code is copied from
+## From "An Introduction to Iterative Toeplitz Solvers" by Raymond Hon-Fu Chan and Xiao-Qing Jin
 ##
 
 import numpy as np
