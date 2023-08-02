@@ -2,7 +2,7 @@
 ##
 
 import numpy as np
-
+from utils import get_cb
 
 def tx(x,gev):
     n=len(x)
@@ -122,7 +122,8 @@ def pcg2(gev,ev,b,ig,tol,it_max,disp=False,atol=False):
     info = {"iter":k,"relative_error":err/err0, "error":err}
     
     return x,info
-    
+ 
+
 def toeplitz_solve_cg(c,b,xinit=None,precond=0,tol=1e-4,it_max=1000,disp=False,atol=False):
     if xinit is None:
         xinit = b*0.0
@@ -130,5 +131,9 @@ def toeplitz_solve_cg(c,b,xinit=None,precond=0,tol=1e-4,it_max=1000,disp=False,a
     x,info=pcg2(gev,ev,b,xinit,tol,it_max,disp=disp,atol=atol)
     info["Preconditioner"]=precond_descrition
     return x,info
+    
+def least_squares_fir_cg(x,y,impulse_length,reg=0.0,xinit=None,precond=0,tol=1e-4,it_max=1000,disp=False,atol=False):
+    c,b = get_cb(x,y,impulse_length,reg)
+    return toeplitz_solve_cg(c,b,xinit=xinit,precond=precond,tol=tol,it_max=it_max,disp=disp,atol=atol)
     
     
