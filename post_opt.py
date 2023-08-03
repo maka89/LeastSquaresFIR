@@ -70,7 +70,7 @@ class Convolve:
         grad += 2.0*self.reg*h*self.reg
         return err, np.copy(grad) 
         
-def post_opt(x,y,h,reg,linear=True,disp=False,maxiter=100):
+def post_opt(x,y,h,reg=0.0,linear=True,disp=False,maxiter=100):
     
     m=len(h)
     model = Convolve(x,y,m,reg,linear=linear)
