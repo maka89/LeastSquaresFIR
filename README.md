@@ -11,11 +11,20 @@ After finding the impulse_response, it can be "tuned" with the post_opt() routin
 ```python
 from utils import least_squares_fir
 from cg_utils import least_squares_fir_cg
+from post_opt import post_opt
 
 x=np.random.randn(10000)
 y=np.random.randn(10000)
 impulse_length = 100
 
-fir1 = least_squares_fir(x,y,impulse_length)
-fir2, info = least_squares_fir_cg(x,y,impulse_length)
+reg=1e-10
+fir1 = least_squares_fir(x,y,impulse_length,reg=reg)
+fir2, info = least_squares_fir_cg(x,y,impulse_length,reg=reg)
+
+#More complex regularization
+reg = np.ones(impulse_length)*reg
+reg[impulse_length//2:impulse_length]*=2.0
+fir1 = post_opt(x,y,fir1,reg,linear=True)
+
+
 ```
