@@ -6,7 +6,7 @@ Code has two main methods:
 - least_squares_fir() that directly solves the least-squares equation using a direct toeplitz solver.
 - lest_squares_fir_cg() that can be used for very high impulse lengths. Uses Preconditioned Conjugate Gradient method to solve the same equation.
 
-After finding the impulse_response, it can be "tuned" with the post_opt() routine. This allows for using linear convolution and more complex regularization.
+After finding the impulse_response, it can be "tuned" with the post_opt() routine. This allows for using linear convolution and more complex regularization. Uses regular scalar minimization using l-bfgs-b.
 
 ```python
 from utils import least_squares_fir
