@@ -13,7 +13,7 @@ class ConvolveTorch:
             self.m2 = 0
         self.n = len(y)
         
-        assert(len(x) <= self.n)
+        assert(len(x) == self.n)
         self.y = torch.tensor(y)
         
         x2 = torch.zeros(self.n+self.m2)

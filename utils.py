@@ -1,35 +1,8 @@
 import numpy as np
 from scipy.linalg import solve_toeplitz
 
-######
-##
-## Algorithm that assumes 
-## a fixed length impulse response (length imp_length)
-## and calculates the least-squares solution of the 
-## convolution equation y = convolve(x, w). With optional l2-regularization.
-##
-##
-## Arguments:
-## reg - l2 regulariztion strength (optional).
-## x - input signal length N
-## y - output signal length N
-## imp_length - desired impulse response length.
-##
-## Returns:
-## w - Learned impulse response (length imp_length)
-
-def pad_x(x,n):
-    x2 = np.zeros(n)
-    x2[0:len(x)]=x
-    return x2
-    
     
 def fwd(x,h,n=None,linear=False):
-
-    if n is not None:
-        x=pad_x(x,n)
-    else:
-        n=len(x)
 
     if linear:
         k = n+len(h)
@@ -52,8 +25,10 @@ def fwd(x,h,n=None,linear=False):
 
 def calc_err(x,y,h,reg,linear=False):
     yp=fwd(x,h,n=len(y),linear=linear)
-    return np.sum((yp-y)**2)+reg*np.sum(h**2)
-    
+    return np.sum((yp-y)**2)+np.sum((np.sqrt(reg)*h)**2)
+ 
+ 
+#Get Toeplitz matrix and vector b for normal equation linear system.
 def get_cb(x,y,imp_length,reg):
     n=len(x)
     X = np.fft.rfft(x)
@@ -68,13 +43,25 @@ def get_cb(x,y,imp_length,reg):
     
     return c,b
 
-
+######
+##
+## Algorithm that assumes 
+## a fixed length impulse response (length imp_length)
+## and calculates the least-squares solution of the 
+## convolution equation y = convolve(x, w). With optional l2-regularization.
+##
+##
+## Arguments:
+## reg - l2 regulariztion strength (optional).
+## x - input signal length N
+## y - output signal length N
+## imp_length - desired impulse response length.
+##
+## Returns:
+## w - Learned impulse response (length imp_length)
 def least_squares_fir(x,y,imp_length,reg=0.0):
     
-    ##Add zeros to x if shorter than y
-    n=len(y)
-    if len(x)<n:
-        x=pad_x(x,n)
+    assert(len(x)==len(y))
         
     c,b = get_cb(x,y,imp_length,reg)
     h=solve_toeplitz( c, b)

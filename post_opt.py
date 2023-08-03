@@ -35,7 +35,7 @@ class Convolve:
             self.m2 = 0
         self.n = len(y)
         
-        assert(len(x) <= self.n)
+        assert(len(x) == self.n)
         self.y = y
         
         x2 = np.zeros(self.n+self.m2)
