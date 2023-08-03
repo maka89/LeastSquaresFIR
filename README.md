@@ -24,7 +24,7 @@ fir2, info = least_squares_fir_cg(x,y,impulse_length,reg=reg)
 #More complex regularization
 reg = np.ones(impulse_length)*reg
 reg[impulse_length//2:impulse_length]*=2.0
-fir1 = post_opt(x,y,fir1,reg,linear=True)
+fir1 = post_opt(x,y,fir1,reg=reg,linear=True)
 
 
 ```
