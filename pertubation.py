@@ -44,9 +44,9 @@ def mult_P3(x,cr_c,cr_d):
     z = np.zeros(n)
     z[0:len(x)] = x
     
-    z=matmul_toeplitz((c_d,r_d),z)
-    z=matmul_toeplitz((r_d,c_d),z)
-    return z[0:len(x)]
+    z1=matmul_toeplitz((c_d,r_d),z)
+    z2=matmul_toeplitz((r_d,c_d),z1)
+    return z2[0:len(x)]
 def rh1(y,cr_d,m):
     c_d,r_d = cr_d
     z=matmul_toeplitz((r_d,c_d),y)
@@ -70,21 +70,21 @@ def lsq_fir_linear_pert(x,y,imp_length,reg=0.0,order=2,check=True):
         h1 = solve_toeplitz(c,b1)
         htot += h1
         
-        hm = h1
-        hmm = h0
+        hm = np.copy(h1)
+        hmm = np.copy(h0)
         for i in range(2,order+1):
             bn = - mult_P2(hm,cr_c,cr_d) - mult_P3(hmm,cr_c,cr_d)
             hnew= solve_toeplitz(c,bn)
             htot += hnew
             
-            hmm = hm
-            hm=hnew
+            hmm = np.copy(hm)
+            hm=np.copy(hnew)
     if check:
         errn=calc_err(x,y,htot,reg,linear=True)
         return htot,(errn<err0)
     else:
         return htot,None
-#def toeplitz_solve_cg(c,b,xinit=None,precond=0,tol=1e-4,it_max=1000,disp=False,atol=False)
+
 
 def lsq_fir_linear_pert_cg(x,y,imp_length,reg=0.0,order=2,check=True,cg_xinit=None,cg_precond=1,cg_itmax=1000,cg_tol=1e-16,cg_disp=False,cg_atol=True):
     
@@ -106,8 +106,8 @@ def lsq_fir_linear_pert_cg(x,y,imp_length,reg=0.0,order=2,check=True,cg_xinit=No
             assert(info["iter"] < cg_itmax)
         htot += h1
         
-        hm = h1
-        hmm = h0
+        hm = np.copy(h1)
+        hmm = np.copy(h0)
         for i in range(2,order+1):
             bn = - mult_P2(hm,cr_c,cr_d) - mult_P3(hmm,cr_c,cr_d)
             hnew, info = toeplitz_solve_cg(c, bn, xinit=None, precond=cg_precond,tol=cg_tol,it_max=cg_itmax,disp=cg_disp,atol=cg_atol)
@@ -115,8 +115,9 @@ def lsq_fir_linear_pert_cg(x,y,imp_length,reg=0.0,order=2,check=True,cg_xinit=No
                 assert(info["iter"] < cg_itmax)
             htot += hnew
             
-            hmm = hm
-            hm=hnew
+            hmm=np.copy(hm)
+            hm=np.copy(hnew)
+
     if check:
         errn=calc_err(x,y,htot,reg,linear=True)
         return htot,(errn<err0)
