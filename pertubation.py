@@ -31,7 +31,7 @@ def mult_P2(x,cr_c,cr_d):
     z1 = matmul_toeplitz((c_d,r_d),z)
     z1 = matmul_toeplitz((r_c,c_c),z1)
     
-    z2 = matmul_toeplitz((c_c,r_c),z) #matmul_real_circulant()
+    z2 = matmul_toeplitz((c_c,r_c),z) 
     z2 = matmul_toeplitz((r_d,c_d),z2)
     
     out = z1+z2
@@ -58,13 +58,12 @@ def lsq_fir_linear_pert(x,y,imp_length,reg=0.0,order=2,check=True):
         
     c,b = get_cb(x,y,imp_length,reg)
     h0=solve_toeplitz( c, b)
-    
     if check:
         err0=calc_err(x,y,h0,reg,linear=True)
-    
     cr_c = circ_to_toeplitz(np.copy(x))
     cr_d = get_Delta(np.copy(x))
-    htot=h0
+    htot=0.0
+    htot+=h0
     if order >= 1:
         b1 = rh1(y,cr_d,imp_length) - mult_P2(h0,cr_c,cr_d)
         h1 = solve_toeplitz(c,b1)
@@ -74,11 +73,14 @@ def lsq_fir_linear_pert(x,y,imp_length,reg=0.0,order=2,check=True):
         hmm = np.copy(h0)
         for i in range(2,order+1):
             bn = - mult_P2(hm,cr_c,cr_d) - mult_P3(hmm,cr_c,cr_d)
+
             hnew= solve_toeplitz(c,bn)
+
             htot += hnew
             
             hmm = np.copy(hm)
             hm=np.copy(hnew)
+
     if check:
         errn=calc_err(x,y,htot,reg,linear=True)
         return htot,(errn<err0)
@@ -98,7 +100,8 @@ def lsq_fir_linear_pert_cg(x,y,imp_length,reg=0.0,order=2,check=True,cg_xinit=No
     
     cr_c = circ_to_toeplitz(np.copy(x))
     cr_d = get_Delta(np.copy(x))
-    htot=h0
+    htot=0.0
+    htot+=h0
     if order >= 1:
         b1 = rh1(y,cr_d,imp_length) - mult_P2(h0,cr_c,cr_d)
         h1,info = toeplitz_solve_cg(c, b1, xinit=None, precond=cg_precond,tol=cg_tol,it_max=cg_itmax,disp=cg_disp,atol=cg_atol)
