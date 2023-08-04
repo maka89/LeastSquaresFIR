@@ -1,7 +1,8 @@
 import numpy as np
-from utils import get_cb,calc_err
-from cg_utils import toeplitz_solve_cg
 from scipy.linalg import solve_toeplitz,matmul_toeplitz
+from .utils import get_cb,calc_err
+from .cg_utils import toeplitz_solve_cg
+
 
 def matmul_real_circulant(c,x):
     C= np.fft.rfft(c)
@@ -92,8 +93,8 @@ def lsq_fir_linear_pert_cg(x,y,imp_length,reg=0.0,order=2,check=True,cg_xinit=No
     
     assert(len(x)==len(y))
         
-    c,b = get_cb(x,y,imp_length,reg)
-    h0,info=toeplitz_solve_cg( c, b, xinit=cg_xinit, precond=cg_precond,tol=cg_tol,it_max=cg_itmax,disp=cg_disp,atol=cg_atol)
+    c,b = get_cb(x,y,imp_length,0.0)
+    h0,info=toeplitz_solve_cg( c, b, xinit=cg_xinit, reg=reg, precond=cg_precond,tol=cg_tol,it_max=cg_itmax,disp=cg_disp,atol=cg_atol)
     if check:
         err0=calc_err(x,y,h0,reg,linear=True)
         assert(info["iter"] < cg_itmax)
@@ -104,7 +105,7 @@ def lsq_fir_linear_pert_cg(x,y,imp_length,reg=0.0,order=2,check=True,cg_xinit=No
     htot+=h0
     if order >= 1:
         b1 = rh1(y,cr_d,imp_length) - mult_P2(h0,cr_c,cr_d)
-        h1,info = toeplitz_solve_cg(c, b1, xinit=None, precond=cg_precond,tol=cg_tol,it_max=cg_itmax,disp=cg_disp,atol=cg_atol)
+        h1,info = toeplitz_solve_cg(c, b1, xinit=None, reg=reg, precond=cg_precond,tol=cg_tol,it_max=cg_itmax,disp=cg_disp,atol=cg_atol)
         if check:
             assert(info["iter"] < cg_itmax)
         htot += h1
@@ -113,7 +114,7 @@ def lsq_fir_linear_pert_cg(x,y,imp_length,reg=0.0,order=2,check=True,cg_xinit=No
         hmm = np.copy(h0)
         for i in range(2,order+1):
             bn = - mult_P2(hm,cr_c,cr_d) - mult_P3(hmm,cr_c,cr_d)
-            hnew, info = toeplitz_solve_cg(c, bn, xinit=None, precond=cg_precond,tol=cg_tol,it_max=cg_itmax,disp=cg_disp,atol=cg_atol)
+            hnew, info = toeplitz_solve_cg(c, bn, xinit=None, reg=reg, precond=cg_precond,tol=cg_tol,it_max=cg_itmax,disp=cg_disp,atol=cg_atol)
             if check:
                 assert(info["iter"] < cg_itmax)
             htot += hnew
