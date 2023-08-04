@@ -19,6 +19,7 @@ Given sequences x and y, find the impulse response that gives the least-squares 
 
 After finding the impulse_response, it can be "tuned" with the post_opt() routine. This allows for using linear convolution and more complex regularization. Uses regular scalar minimization using l-bfgs-b.
 
+## Example 
 ```python
 np.random.seed(0)
 x=np.random.randn(10000)
