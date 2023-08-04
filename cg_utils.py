@@ -125,7 +125,7 @@ def pcg(gev,ev,b,ig,tol,it_max,disp=False,atol=False):
     return x,info
  
 
-def toeplitz_solve_cg(c,b,xinit=None,precond=0,tol=1e-4,it_max=1000,disp=False,atol=False):
+def toeplitz_solve_cg(c,b,xinit=None,precond=1,tol=1e-4,it_max=1000,disp=False,atol=True):
     if xinit is None:
         xinit = b*0.0
     ev,gev,precond_descrition = get_precond_ev_gev(c,precond)
@@ -133,7 +133,7 @@ def toeplitz_solve_cg(c,b,xinit=None,precond=0,tol=1e-4,it_max=1000,disp=False,a
     info["Preconditioner"]=precond_descrition
     return x,info
     
-def least_squares_fir_cg(x,y,impulse_length,reg=0.0,xinit=None,precond=1,tol=1e-6,it_max=1000,disp=False,atol=True):
+def least_squares_fir_cg(x,y,impulse_length,reg=0.0,xinit=None,precond=1,tol=1e-4,it_max=1000,disp=False,atol=True):
     assert(len(x)==len(y))
     c,b = get_cb(x,y,impulse_length,reg)
     return toeplitz_solve_cg(c,b,xinit=xinit,precond=precond,tol=tol,it_max=it_max,disp=disp,atol=atol)
