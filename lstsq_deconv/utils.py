@@ -67,8 +67,8 @@ def least_squares_fir(x,y,imp_length,reg=0.0):
     h=solve_toeplitz( c, b)
     return h
     
-def get_fir_fft(x,y,imp_length):
+def get_fir_fft(x,y,imp_length,reg=0.0):
     X=np.fft.rfft(x)
     Y=np.fft.rfft(y)
-    return np.fft.irfft(Y/X)[0:imp_length]
+    return np.fft.irfft(X.conj()*Y/(X.conj()*X+reg),n=len(x))[0:imp_length]
 
