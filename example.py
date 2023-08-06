@@ -53,6 +53,6 @@ reg2 = np.ones(impulse_length)*reg
 
 r=np.zeros_like(x)
 r[0] = x[0]
-fir6,info=lstsquares_toep_cg((x,r),y,xinit=fir2,precond=1,imp_length=impulse_length,reg=reg,tol=1e-8*np.sum(y**2),it_max=20000,disp=True,atol=True)
+fir6,info=lstsquares_toep_cg((x,r),y,xinit=fir2,imp_length=impulse_length,reg=reg,tol=1e-8*np.sum(y**2),it_max=20000,disp=True,atol=True)
 print(info)
 print("Toeplitz LstSq PCG",calc_err(x,y,fir6,reg,linear=linear_bool))
